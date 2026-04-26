@@ -1,136 +1,111 @@
-import math
-import time
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import winsound
+import time
 import threading
 
-from clock_hand import ClockHand
-from clock_time import ClockTime
 from alarm_manager import AlarmManager
+from clock_widget import ClockWidget
 
 class ClockApp(tk.Tk):
-    """Frontend Tkinter: dibuja el reloj analógico en Canvas y orquesta todo."""
+    """Frontend Tkinter: orquesta los relojes, el historial y las alarmas."""
     def __init__(self):
         super().__init__()
-        self.title("Reloj Analógico")
-        self.geometry("500x600")
+        self.title("Sistema de Relojes Analógicos")
+        self.geometry("900x450")
         self.configure(bg="#2c3e50")
         self.resizable(False, False)
         
-        self.clock_time = ClockTime()
         self.alarm_manager = AlarmManager()
         
-        self.canvas_size = 400
-        self.center = self.canvas_size // 2
+        # Top Frame para los 3 Relojes
+        clocks_frame = tk.Frame(self, bg="#2c3e50")
+        clocks_frame.pack(fill=tk.BOTH, expand=True, pady=10)
         
-        # Título
-        title_lbl = tk.Label(self, text="Reloj Analógico con Alarmas", bg="#2c3e50", fg="white", font=("Helvetica", 16, "bold"))
-        title_lbl.pack(pady=10)
+        self.clock_local = ClockWidget(clocks_frame, "Hora Local", offset_hours=None, size=250)
+        self.clock_local.pack(side=tk.LEFT, expand=True)
         
-        # Canvas para dibujar el reloj
-        self.canvas = tk.Canvas(self, width=self.canvas_size, height=self.canvas_size, bg="#34495e", highlightthickness=0)
-        self.canvas.pack(pady=10)
+        self.clock_ny = ClockWidget(clocks_frame, "Nueva York (UTC-4)", offset_hours=-4, size=250)
+        self.clock_ny.pack(side=tk.LEFT, expand=True)
         
-        # Instanciar las manecillas
-        self.hour_hand = ClockHand(100, 6, "#ecf0f1")
-        self.minute_hand = ClockHand(140, 4, "#bdc3c7")
-        self.second_hand = ClockHand(160, 2, "#e74c3c")
+        self.clock_tokyo = ClockWidget(clocks_frame, "Tokio (UTC+9)", offset_hours=9, size=250)
+        self.clock_tokyo.pack(side=tk.LEFT, expand=True)
         
-        # Controles de la UI
-        control_frame = tk.Frame(self, bg="#2c3e50")
-        control_frame.pack(fill=tk.X, padx=20, pady=10)
+        # Bottom Frame para Controles e Historial
+        bottom_frame = tk.Frame(self, bg="#2c3e50")
+        bottom_frame.pack(fill=tk.BOTH, expand=False, padx=20, pady=10)
         
-        self.add_alarm_btn = tk.Button(control_frame, text="+ Añadir Alarma", command=self.add_alarm_dialog, bg="#27ae60", fg="white", font=("Arial", 12, "bold"), cursor="hand2")
-        self.add_alarm_btn.pack(side=tk.LEFT, padx=10)
+        # Controles (Izquierda)
+        controls_frame = tk.Frame(bottom_frame, bg="#2c3e50")
+        controls_frame.pack(side=tk.LEFT, fill=tk.Y)
         
-        self.alarms_label = tk.Label(control_frame, text="Alarmas activas: 0", bg="#2c3e50", fg="white", font=("Arial", 12))
-        self.alarms_label.pack(side=tk.RIGHT, padx=10)
+        self.add_alarm_btn = tk.Button(controls_frame, text="+ Añadir Alarma", command=self.add_alarm_dialog, bg="#27ae60", fg="white", font=("Arial", 12, "bold"), cursor="hand2")
+        self.add_alarm_btn.pack(pady=10)
         
-        # Iniciar loop del reloj
-        self.update_clock()
+        self.alarms_label = tk.Label(controls_frame, text="Alarmas activas: 0", bg="#2c3e50", fg="white", font=("Arial", 12))
+        self.alarms_label.pack(pady=5)
+        
+        # Historial (Derecha)
+        history_frame = tk.Frame(bottom_frame, bg="#2c3e50")
+        history_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(50, 0))
+        
+        history_lbl = tk.Label(history_frame, text="Historial de Alarmas (Log)", bg="#2c3e50", fg="white", font=("Arial", 11, "bold"))
+        history_lbl.pack(anchor="w")
+        
+        self.history_listbox = tk.Listbox(history_frame, bg="#34495e", fg="white", font=("Consolas", 10), height=5, relief=tk.FLAT, selectbackground="#1abc9c")
+        self.history_listbox.pack(fill=tk.BOTH, expand=True)
+        
+        self.update_clocks()
 
     def add_alarm_dialog(self):
-        time_str = simpledialog.askstring("Añadir Alarma", "Ingrese la hora (HH:MM) en formato 24h:", parent=self)
+        time_str = simpledialog.askstring("Añadir Alarma", "Ingrese la hora (HH:MM) en formato 24h\n(Reloj Local):", parent=self)
         if time_str:
             try:
                 hour, minute = map(int, time_str.split(":"))
                 if 0 <= hour <= 23 and 0 <= minute <= 59:
-                    message = simpledialog.askstring("Mensaje", "Ingrese un mensaje para la alarma:", parent=self)
-                    self.alarm_manager.add_alarm(hour, minute, message or "¡Es hora!")
+                    message = simpledialog.askstring("Mensaje", "Mensaje de la alarma:", parent=self)
+                    rep_str = simpledialog.askstring("Repetición", "Repetir cada N minutos (0 para que sea sólo diaria):", initialvalue="0", parent=self)
+                    
+                    try:
+                        repeat_minutes = int(rep_str) if rep_str else 0
+                    except ValueError:
+                        repeat_minutes = 0
+                        
+                    self.alarm_manager.add_alarm(hour, minute, message or "¡Alarma!", repeat_minutes)
                     self.update_alarms_label()
-                    messagebox.showinfo("Éxito", f"Alarma configurada para las {hour:02d}:{minute:02d}", parent=self)
+                    
+                    rep_msg = f"se repetirá cada {repeat_minutes} min" if repeat_minutes > 0 else "se repetirá diariamente"
+                    messagebox.showinfo("Alarma Creada", f"Programada para {hour:02d}:{minute:02d} y {rep_msg}", parent=self)
                 else:
-                    messagebox.showerror("Error", "Hora inválida. Verifique que los valores estén en rango (0-23 y 0-59).")
+                    messagebox.showerror("Error", "Hora inválida.")
             except ValueError:
-                messagebox.showerror("Error", "Formato inválido. Use el formato HH:MM (ej. 14:30).")
+                messagebox.showerror("Error", "Formato inválido. Use HH:MM.")
 
     def update_alarms_label(self):
         active_alarms = len([a for a in self.alarm_manager.alarms if a.enabled])
         self.alarms_label.config(text=f"Alarmas activas: {active_alarms}")
 
-    def draw_clock_face(self):
-        self.canvas.delete("all")
-        
-        # Círculo principal del reloj
-        self.canvas.create_oval(10, 10, self.canvas_size-10, self.canvas_size-10, outline="#2c3e50", width=4, fill="#1abc9c")
-        self.canvas.create_oval(20, 20, self.canvas_size-20, self.canvas_size-20, outline="#16a085", width=2)
-        
-        # Dibujar marcas de las horas y minutos
-        for i in range(60):
-            angle = i * 6
-            rad = math.radians(angle)
-            
-            # Si es una marca de hora (cada 5 minutos)
-            if i % 5 == 0:
-                start_x = self.center + 165 * math.sin(rad)
-                start_y = self.center - 165 * math.cos(rad)
-                end_x = self.center + 185 * math.sin(rad)
-                end_y = self.center - 185 * math.cos(rad)
-                self.canvas.create_line(start_x, start_y, end_x, end_y, fill="#ecf0f1", width=3)
-                
-                # Números (opcional, para que se vea más profesional)
-                num = i // 5
-                if num == 0: num = 12
-                text_x = self.center + 145 * math.sin(rad)
-                text_y = self.center - 145 * math.cos(rad)
-                self.canvas.create_text(text_x, text_y, text=str(num), fill="#ecf0f1", font=("Helvetica", 14, "bold"))
-            else:
-                # Marca de minuto
-                start_x = self.center + 175 * math.sin(rad)
-                start_y = self.center - 175 * math.cos(rad)
-                end_x = self.center + 185 * math.sin(rad)
-                end_y = self.center - 185 * math.cos(rad)
-                self.canvas.create_line(start_x, start_y, end_x, end_y, fill="#bdc3c7", width=1)
+    def refresh_history(self):
+        self.history_listbox.delete(0, tk.END)
+        # Mostrar las alarmas más recientes primero
+        for log in reversed(self.alarm_manager.history):
+            self.history_listbox.insert(tk.END, f"  {log}")
 
-    def draw_hand(self, hand, angle):
-        end_x, end_y = hand.calculate_end_point(self.center, self.center, angle)
-        self.canvas.create_line(self.center, self.center, end_x, end_y, fill=hand.color, width=hand.thickness, capstyle=tk.ROUND)
-
-    def update_clock(self):
-        # Obtener lógica pura
-        hour, minute, second = self.clock_time.get_current_time()
-        hour_angle, minute_angle, second_angle = self.clock_time.calculate_angles(hour, minute, second)
+    def update_clocks(self):
+        # Actualizar la hora en los 3 relojes
+        l_h, l_m, l_s = self.clock_local.update_clock()
+        self.clock_ny.update_clock()
+        self.clock_tokyo.update_clock()
         
-        # Redibujar
-        self.draw_clock_face()
-        self.draw_hand(self.hour_hand, hour_angle)
-        self.draw_hand(self.minute_hand, minute_angle)
-        self.draw_hand(self.second_hand, second_angle)
-        
-        # Eje central de las manecillas
-        self.canvas.create_oval(self.center-8, self.center-8, self.center+8, self.center+8, fill="#ecf0f1", outline="#2c3e50", width=2)
-        
-        # Revisar si se dispara alguna alarma
-        triggered = self.alarm_manager.check_alarms(hour, minute)
+        # Verificar alarmas según la hora local
+        triggered = self.alarm_manager.check_alarms(l_h, l_m)
         for alarm in triggered:
             self.trigger_alarm(alarm)
-        
-        # Programar la siguiente actualización
-        self.after(100, self.update_clock)  # A 100ms para que se vea más fluido y se dispare a tiempo
+            self.refresh_history()
+            
+        self.after(100, self.update_clocks)
 
     def trigger_alarm(self, alarm):
-        # Efecto de sonido (Windows)
         def play_sound():
             try:
                 for _ in range(3):
@@ -141,7 +116,6 @@ class ClockApp(tk.Tk):
             except Exception:
                 pass
         
-        # Notificación visual
         original_bg = self.cget("bg")
         
         def flash_colors(count):
@@ -149,11 +123,10 @@ class ClockApp(tk.Tk):
                 current_bg = self.cget("bg")
                 next_bg = "#e74c3c" if current_bg == original_bg else original_bg
                 self.configure(bg=next_bg)
-                self.canvas.configure(bg="#c0392b" if next_bg == "#e74c3c" else "#34495e")
                 self.after(300, flash_colors, count-1)
             else:
                 self.configure(bg=original_bg)
-                self.canvas.configure(bg="#34495e")
+                # Al terminar de parpadear, mostramos la alerta visual final
                 messagebox.showinfo("¡Alarma Disparada!", f"⏰ Hora: {alarm.hour:02d}:{alarm.minute:02d}\nMensaje: {alarm.message}", parent=self)
                 self.update_alarms_label()
         

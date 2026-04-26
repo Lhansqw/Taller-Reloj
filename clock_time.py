@@ -1,12 +1,16 @@
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 class ClockTime:
     """Lógica pura de tiempo: obtener hora actual y calcular ángulos."""
-    def __init__(self):
-        pass
+    def __init__(self, offset_hours=None):
+        self.offset_hours = offset_hours
 
     def get_current_time(self):
-        now = datetime.now()
+        if self.offset_hours is not None:
+            tz = timezone(timedelta(hours=self.offset_hours))
+            now = datetime.now(tz)
+        else:
+            now = datetime.now()
         return now.hour, now.minute, now.second
 
     def calculate_angles(self, hour, minute, second):
