@@ -62,17 +62,4 @@ python main.py
 5. Cuando llegue la hora, la ventana **parpadeará**, sonará un **beep** y aparecerá una **notificación**.
 6. El evento quedará registrado en el **Historial de Alarmas**.
 
----
 
-##  Diseño Visual
-
-| Elemento | Color |
-|---|---|
-| Fondo de la aplicación | `#2c3e50` (azul oscuro) |
-| Esfera del reloj | `#1abc9c` (verde esmeralda) |
-| Manecilla de horas | `#ecf0f1` (blanco perla) |
-| Manecilla de minutos | `#bdc3c7` (gris claro) |
-| Segundero | `#e74c3c` (rojo vivo) |
-| Alerta de alarma | `#e74c3c` (parpadeo rojo) |
-
----
