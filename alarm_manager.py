@@ -5,7 +5,7 @@ class AlarmManager:
     """Gestiona la lista de alarmas (agregar, eliminar, verificar disparo)."""
     def __init__(self):
         self.alarms = []
-        self.history = [] # Historial de alarmas disparadas
+        self.history = [] 
 
     def add_alarm(self, hour, minute, message, repeat_minutes=0):
         alarm = Alarm(hour, minute, message, repeat_minutes)
@@ -22,11 +22,10 @@ class AlarmManager:
             if alarm.check_match(current_hour, current_minute):
                 alarm.triggered = True
                 
-                # Avanzar tiempo si es recurrente por minutos
+              
                 if alarm.repeat_minutes > 0:
                     alarm.advance_time()
                 
-                # Registrar en el historial
                 now = datetime.now()
                 log_entry = f"[{now.strftime('%H:%M:%S')}] {alarm.message} (Sonó a las {current_hour:02d}:{current_minute:02d})"
                 self.history.append(log_entry)

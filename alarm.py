@@ -13,7 +13,6 @@ class Alarm:
             if current_hour == self.hour and current_minute == self.minute:
                 return True
         elif current_hour != self.hour or current_minute != self.minute:
-            # Reiniciar el estado de 'disparada' cuando pasa el minuto de la alarma
             self.triggered = False
         return False
         
