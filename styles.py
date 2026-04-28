@@ -39,7 +39,7 @@ def toggle_theme():
 def get_style(key):
     return current_theme.get(key, "")
 
-
+FONT_FAMILY = "Helvetica"
 FONT_BOLD = (FONT_FAMILY, 12, "bold")
 FONT_NORMAL = (FONT_FAMILY, 10)
 FONT_SMALL = (FONT_FAMILY, 9)
