@@ -1,20 +1,45 @@
-BG_COLOR = "#f5f5f5"     
-FRAME_BG = "#ffffff"     
-CANVAS_BG = "#ffffff"     
+LIGHT_THEME = {
+    "bg": "#f5f5f5",
+    "frame_bg": "#ffffff",
+    "canvas_bg": "#ffffff",
+    "accent": "#2c3e50",
+    "secondary": "#7f8c8d",
+    "alert": "#e74c3c",
+    "border": "#bdc3c7",
+    "text": "#2c3e50",
+    "button_bg": "#2c3e50",
+    "button_fg": "#ffffff"
+}
 
 
-ACCENT_COLOR = "#2c3e50"  
-SECONDARY_COLOR = "#7f8c8d" 
-ALERT_COLOR = "#e74c3c"    
-BORDER_COLOR = "#bdc3c7"   
+DARK_THEME = {
+    "bg": "#1a1a1a",
+    "frame_bg": "#2d2d2d",
+    "canvas_bg": "#2d2d2d",
+    "accent": "#ecf0f1",
+    "secondary": "#95a5a6",
+    "alert": "#e74c3c",
+    "border": "#3f3f3f",
+    "text": "#ecf0f1",
+    "button_bg": "#34495e",
+    "button_fg": "#ffffff"
+}
 
 
-BUTTON_BG = "#2c3e50"
-BUTTON_FG = "#ffffff"
-CANCEL_BTN_BG = "#e74c3c"
+current_theme = LIGHT_THEME
 
-TEXT_COLOR = "#2c3e50"
-FONT_FAMILY = "Helvetica"
+def toggle_theme():
+    global current_theme
+    if current_theme == LIGHT_THEME:
+        current_theme = DARK_THEME
+    else:
+        current_theme = LIGHT_THEME
+    return current_theme
+
+def get_style(key):
+    return current_theme.get(key, "")
+
+
 FONT_BOLD = (FONT_FAMILY, 12, "bold")
 FONT_NORMAL = (FONT_FAMILY, 10)
 FONT_SMALL = (FONT_FAMILY, 9)
