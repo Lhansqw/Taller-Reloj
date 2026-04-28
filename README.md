@@ -25,7 +25,8 @@ Taller-Reloj/
 ├── clock_hand.py      # Lógica y geometría de las manecillas
 ├── clock_time.py      # Lógica pura de tiempo y cálculo de ángulos
 ├── alarm.py           # Modelo de una alarma individual
-└── alarm_manager.py   # Gestor de alarmas (CRUD + historial)
+├── alarm_manager.py   # Gestor de alarmas (CRUD + historial)
+└── styles.py          # Configuración de temas y estilos visuales
 ```
 
 
@@ -62,21 +63,11 @@ python main.py
 5. Cuando llegue la hora, la ventana **parpadeará**, sonará un **beep** y aparecerá una **notificación**.
 6. El evento quedará registrado en el **Historial de Alarmas**.
 
-<<<<<<< HEAD
 ---
 
 ##  Diseño Visual
 
-| Elemento | Color |
-|---|---|
-| Fondo de la aplicación | `#2c3e50` (azul oscuro) |
-| Esfera del reloj | `#1abc9c` (verde esmeralda) |
-| Manecilla de horas | `#ecf0f1` (blanco perla) |
-| Manecilla de minutos | `#bdc3c7` (gris claro) |
-| Segundero | `#e74c3c` (rojo vivo) |
-| Alerta de alarma | `#e74c3c` (parpadeo rojo) |
+El diseño de la aplicación es completamente modular y soporta temas claros y oscuros.
+Toda la configuración de estilos, colores y fuentes se encuentra centralizada en el archivo `styles.py`.
 
 ---
-=======
-
->>>>>>> 80aaa7961b96043be8bf9c660de8b021b182efa3
