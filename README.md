@@ -62,6 +62,7 @@ python main.py
 5. Cuando llegue la hora, la ventana **parpadeará**, sonará un **beep** y aparecerá una **notificación**.
 6. El evento quedará registrado en el **Historial de Alarmas**.
 
+<<<<<<< HEAD
 ---
 
 ##  Diseño Visual
@@ -76,3 +77,6 @@ python main.py
 | Alerta de alarma | `#e74c3c` (parpadeo rojo) |
 
 ---
+=======
+
+>>>>>>> 80aaa7961b96043be8bf9c660de8b021b182efa3

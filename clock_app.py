@@ -8,14 +8,7 @@ from datetime import datetime
 from alarm_manager import AlarmManager
 from clock_widget import ClockWidget
 
-# Colors for professional theme
-BG_COLOR = "#f5f5f5"  # Light gray background
-FRAME_BG = "#ffffff"  # White frames
-ACCENT_COLOR = "#2c3e50"  # Dark blue accent
-BUTTON_BG = "#2c3e50"
-BUTTON_FG = "#ffffff"
-TEXT_COLOR = "#2c3e50"
-FONT_FAMILY = "Helvetica"
+from styles import *
 
 class CustomAlarmDialog(tk.Toplevel):
     """Diálogo personalizado para crear una alarma de forma sencilla y profesional."""
@@ -30,7 +23,7 @@ class CustomAlarmDialog(tk.Toplevel):
         self.grab_set()
 
         tk.Label(self, text="Configurar Alarma", bg=FRAME_BG, fg=ACCENT_COLOR,
-                 font=(FONT_FAMILY, 12, "bold")).pack(pady=10)
+                 font=FONT_BOLD).pack(pady=10)
 
         # Hora y minuto
         time_frame = tk.Frame(self, bg=FRAME_BG)
@@ -57,7 +50,7 @@ class CustomAlarmDialog(tk.Toplevel):
         btn_frame = tk.Frame(self, bg=FRAME_BG)
         btn_frame.pack(pady=15)
         tk.Button(btn_frame, text="Cancelar", command=self.destroy,
-                  bg="#e74c3c", fg="#ffffff", width=10).pack(side=tk.LEFT, padx=5)
+                  bg=CANCEL_BTN_BG, fg="#ffffff", width=10).pack(side=tk.LEFT, padx=5)
         tk.Button(btn_frame, text="Guardar", command=self.save,
                   bg=BUTTON_BG, fg=BUTTON_FG, width=10).pack(side=tk.LEFT, padx=5)
 
@@ -102,28 +95,28 @@ class ClockApp(tk.Tk):
 
         self.add_alarm_btn = tk.Button(controls_frame, text="⏰ Alarma Personalizada",
                                         command=self.add_alarm_dialog, bg=BUTTON_BG, fg=BUTTON_FG,
-                                        font=(FONT_FAMILY, 10, "bold"), cursor="hand2", width=22)
+                                        font=FONT_NORMAL, cursor="hand2", width=22)
         self.add_alarm_btn.pack(pady=5)
 
         # Alarmas rápidas
         tk.Label(controls_frame, text="Alarmas Rápidas:", bg=FRAME_BG, fg=TEXT_COLOR,
-                 font=(FONT_FAMILY, 10, "bold")).pack(pady=(10, 0))
+                 font=FONT_NORMAL).pack(pady=(10, 0))
         quick_frame = tk.Frame(controls_frame, bg=FRAME_BG)
         quick_frame.pack(pady=5)
         offsets = [("1m", 1), ("5m", 5), ("15m", 15), ("30m", 30)]
         for txt, mins in offsets:
             tk.Button(quick_frame, text=f"+{txt}", command=lambda m=mins: self.add_quick_alarm(m),
-                      bg=BUTTON_BG, fg=BUTTON_FG, font=(FONT_FAMILY, 9), cursor="hand2", width=5).pack(side=tk.LEFT, padx=2)
+                      bg=BUTTON_BG, fg=BUTTON_FG, font=FONT_SMALL, cursor="hand2", width=5).pack(side=tk.LEFT, padx=2)
 
         self.alarms_label = tk.Label(controls_frame, text="Alarmas activas: 0",
-                                      bg=FRAME_BG, fg=TEXT_COLOR, font=(FONT_FAMILY, 12))
+                                      bg=FRAME_BG, fg=TEXT_COLOR, font=FONT_BOLD)
         self.alarms_label.pack(pady=5)
 
         # Historial (derecha)
         history_frame = tk.Frame(bottom_frame, bg=FRAME_BG)
         history_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(30, 10))
         history_lbl = tk.Label(history_frame, text="Historial de Alarmas (Log)",
-                               bg=FRAME_BG, fg=TEXT_COLOR, font=(FONT_FAMILY, 11, "bold"))
+                               bg=FRAME_BG, fg=TEXT_COLOR, font=FONT_BOLD)
         history_lbl.pack(anchor="w")
         self.history_listbox = tk.Listbox(history_frame, bg="#ffffff", fg=TEXT_COLOR,
                                           font=("Consolas", 10), height=6, relief=tk.FLAT,
